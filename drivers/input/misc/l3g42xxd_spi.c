@@ -1,4 +1,18 @@
-#include <linux/input.h>	/* BUS_SPI */
+/* Copyright 2014 - 2015 CyberTech Labs Ltd.
+ *
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License version 2 as
+* published by the Free Software Foundation.
+*
+* THE PRESENT SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES
+* OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, FOR THE SOLE
+* PURPOSE TO SUPPORT YOUR APPLICATION DEVELOPMENT.
+* AS A RESULT, CyberTech Labs  SHALL NOT BE HELD LIABLE FOR ANY DIRECT,
+* INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING FROM THE
+* CONTENT OF SUCH SOFTWARE AND/OR THE USE MADE BY CUSTOMERS OF THE CODING
+* INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+*/
+#include <linux/input.h>
 #include <linux/module.h>
 #include <linux/spi/spi.h>
 #include <linux/pm.h>
@@ -109,5 +123,5 @@ module_spi_driver(l3g42xxd_spi_driver);
 
 MODULE_AUTHOR("Roman Meshkevich <romik.momik@trikset.com>");
 MODULE_DESCRIPTION("L3gd20 Three-Axis Digital Accelerometer SPI Bus Driver");
-MODULE_LICENSE("GPL");
+MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("spi:l3g42xxd");
