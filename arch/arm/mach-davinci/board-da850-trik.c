@@ -494,24 +494,20 @@ const short da850_trik_spi1_l3g42xxd_pins[] __initconst = {
 	-1
 };
 
+static struct l3g42xxd_platform_data da850_l3g42xxd_pdata;
+
 static struct spi_board_info da850_trik_spi1_info[] = {
 	[0] = {
-		.modalias		= "",                  /* Stub */
-		.mode			= SPI_MODE_0,
-		.max_speed_hz		= 10000000,       /* max sample rate at 3V */
-		.bus_num		= 1,
-		.chip_select		= 0,
-	},
-	[1] = {
 		.modalias		= "l3g42xxd",
 		.controller_data 	= &da850_trik_spi1_cfg,
-		.platform_data 		= NULL,
+		.platform_data 		= &da850_l3g42xxd_pdata,
 		.mode 			= SPI_MODE_0, //SPI_NO_CS
 		.max_speed_hz		= 10000000,
 		.bus_num		= 1,
-		.chip_select		= 1,
+		.chip_select		= 0,
 	},
 };
+	
 
 const short da850_trik_spi1_pins[] __initconst = {
 	DA850_SPI1_SIMO,
@@ -521,7 +517,7 @@ const short da850_trik_spi1_pins[] __initconst = {
 	-1
 };
 
-static u8 da850_trik_spi1_chipselect[] = { SPI_INTERN_CS, GPIO_TO_PIN(4,9) };
+static u8 da850_trik_spi1_chipselect[] = { GPIO_TO_PIN(4,9) };
 
 #warning TODO match driver and gpio irq
 static __init int da850_trik_spi1_init(void)
@@ -543,8 +539,9 @@ static __init int da850_trik_spi1_init(void)
 #warning TODO request l3g42xxd-specific gpios
 	da8xx_spi_pdata[1].num_chipselect	= ARRAY_SIZE(da850_trik_spi1_chipselect);
 	da8xx_spi_pdata[1].chip_sel		= da850_trik_spi1_chipselect;
-
-	da850_trik_spi1_info[1].irq		= gpio_to_irq(GPIO_TO_PIN(2, 8));
+	da850_l3g42xxd_pdata.gpio_drdy = gpio_to_irq(GPIO_TO_PIN(2, 9));
+	da850_l3g42xxd_pdata.gpio_int1 = gpio_to_irq(GPIO_TO_PIN(2, 8)),
+	//da850_trik_spi1_info[1].irq		= gpio_to_irq(GPIO_TO_PIN(2, 8));
 
 	ret = gpio_request(GPIO_TO_PIN(4, 9), "l3g42xxd chip-select");
 	if (ret)

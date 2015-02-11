@@ -6,6 +6,8 @@
 
 #include "l3g42xxd.h"
 
+#define L3G42XXD_MAX_SPI_FREQ_HZ	10000000
+
 #define L3G42XXD_CMD_MULTB	(1 << 6)
 #define L3G42XXD_CMD_READ	(1 << 7)
 
@@ -31,7 +33,7 @@ static int l3g42xxd_spi_write(struct device *dev, unsigned char reg, unsigned ch
 
 	return spi_write(spi, buf, sizeof(buf));
 }
-static  int l3g42xxd_spi_read_block (struct device * dev,unsigned char reg,   unsigned char  count, void *buf)
+static  int l3g42xxd_spi_read_block (struct device * dev, unsigned char reg, int count, void *buf)
 {
 	struct spi_device *spi = to_spi_device(dev);
 	ssize_t status;
@@ -41,19 +43,26 @@ static  int l3g42xxd_spi_read_block (struct device * dev,unsigned char reg,   un
 
 	return (status < 0) ? status : 0;
 }
+
+static const struct l3g42xxd_bus_op l3g42xxd_spi_ops = {
+	.bustype	= BUS_SPI,
+	.write		= l3g42xxd_spi_write,
+	.read		= l3g42xxd_spi_read,
+	.read_block	= l3g42xxd_spi_read_block,
+};
+
 static int __devinit l3g42xxd_spi_probe(struct spi_device *spi)
 {
 	struct l3g42xxd_chip* chip ;
-	int ret;
-
 	if (spi->max_speed_hz > L3G42XXD_MAX_SPI_FREQ_HZ) {
 		pr_err("%s : SPI CLK %d Hz too fast\n",__func__, spi->max_speed_hz);
 		return -EINVAL;
 	}
-	ret = l3g42xxd_probe(&spi->dev,BUS_SPI,spi->irq,l3g42xxd_spi_read,l3g42xxd_spi_write,l3g42xxd_spi_read_block,&chip);
-	if (ret){
-		pr_err("%s: l3g42xxd_probe failed\n",__func__);
-		return ret;
+
+	chip = l3g42xxd_probe(&spi->dev, &l3g42xxd_spi_ops);
+		if (IS_ERR(chip)){
+			pr_err("%s: l3g42xxd_probe failed\n",__func__);
+			return PTR_ERR(chip);
 	}
 	spi_set_drvdata(spi, chip);
 	return 0;
@@ -70,15 +79,15 @@ static int __devexit l3g42xxd_spi_remove(struct spi_device *spi)
 static int l3g42xxd_spi_suspend(struct device *dev)
 {
 	struct spi_device *spi = to_spi_device(dev);
-        struct l3g42xxd_chip *chip = dev_get_drvdata(&spi->dev);
+	struct l3g42xxd_chip *chip = dev_get_drvdata(&spi->dev);
 	l3g42xxd_suspend(chip);
 	return 0;
 }
 static int l3g42xxd_spi_resume(struct device *dev)
 {
 	struct spi_device *spi = to_spi_device(dev);
-        struct l3g42xxd_chip *chip = dev_get_drvdata(&spi->dev);
-        l3g42xxd_resume(chip);
+    struct l3g42xxd_chip *chip = dev_get_drvdata(&spi->dev);
+	l3g42xxd_resume(chip);
 	return 0;
 }
 
